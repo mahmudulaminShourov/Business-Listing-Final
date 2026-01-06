@@ -15,6 +15,7 @@ import cartRoutes from './routes/cart.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import marketplaceRoutes from './routes/marketplace.routes.js';
 import preferencesRoutes from './routes/preferences.routes.js';
+import orderRoutes from './routes/order.routes.js';
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/preferences', preferencesRoutes); // ReX AI Memory System
+app.use('/api/orders', orderRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

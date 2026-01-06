@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, MapPin, Truck, Bike } from 'lucide-react';
 import useAuthStore from '../state/authStore';
 import toast from 'react-hot-toast';
+import { orderAPI } from '../lib/api';
 
 const OrderingFlow = ({ business, onClose }) => {
     const { user } = useAuthStore();
@@ -58,18 +59,40 @@ const OrderingFlow = ({ business, onClose }) => {
         }
     };
 
-    const handleFinalOrder = () => {
+    const handleFinalOrder = async () => {
         // Build smart URL for delivery platform
         const businessSlug = business.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         const platformUrl = deliveryPlatform.url || `https://www.${deliveryPlatform.name.toLowerCase().replace(/\s/g, '')}.com.bd/restaurant/${businessSlug}`;
 
-        // In a real app, we'd save the order to backend here
-        toast.success(`Redirecting to ${deliveryPlatform.name}...`, { duration: 2000 });
+        try {
+            await orderAPI.createOrder({
+                businessId: business._id,
+                items: selectedItems.map(item => ({
+                    itemId: item._id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                totalAmount: getTotalPrice(),
+                deliveryPlatform: deliveryPlatform.name,
+                deliveryAddress: address,
+                platformUrl
+            });
 
-        setTimeout(() => {
-            window.open(platformUrl, '_blank');
-            onClose();
-        }, 1500);
+            toast.success(`Order saved! Redirecting to ${deliveryPlatform.name}...`, { duration: 2000 });
+
+            setTimeout(() => {
+                window.open(platformUrl, '_blank');
+                onClose();
+            }, 1500);
+        } catch (err) {
+            console.error('Order save error:', err);
+            toast.error('Could not save order history, redirecting anyway...');
+            setTimeout(() => {
+                window.open(platformUrl, '_blank');
+                onClose();
+            }, 1500);
+        }
     };
 
     const getAvailablePlatforms = () => {

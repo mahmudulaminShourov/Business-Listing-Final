@@ -9,6 +9,7 @@ const router = express.Router();
 router.get('/', validate(schemas.getListings), listingController.getListings);
 router.get('/my-listings', authenticate, listingController.getMyListings);
 router.get('/:id', listingController.getListing);
+
 router.post(
   '/',
   authenticate,
@@ -16,6 +17,7 @@ router.post(
   validate(schemas.createListing),
   listingController.createListing
 );
+
 router.put(
   '/:id',
   authenticate,
@@ -23,11 +25,19 @@ router.put(
   validate(schemas.updateListing),
   listingController.updateListing
 );
+
 router.delete(
   '/:id',
   authenticate,
   listingWriteRateLimit,
   listingController.deleteListing
+);
+
+
+router.post(
+  '/:id/report',
+  authenticate, 
+  listingController.reportListing
 );
 
 export default router;

@@ -46,7 +46,7 @@ const useAuthStore = create((set) => ({
   checkAuth: async () => {
     try {
       set({ loading: true });
-      const response = await authAPI.getMe();
+      const response = await authAPI.checkAuth();
       set({ user: response.data.user, loading: false });
     } catch (error) {
       set({ user: null, loading: false });

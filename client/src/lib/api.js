@@ -1,52 +1,113 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+// client/src/lib/api.js
 
-const api = async (endpoint, options = {}) => {
-  const url = `${API_URL}${endpoint}`;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+async function api(endpoint, options = {}) {
   const config = {
-    ...options,
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
       ...options.headers,
     },
     credentials: 'include',
+    ...options,
   };
 
-  if (options.body && typeof options.body === 'object') {
-    config.body = JSON.stringify(options.body);
+  // If body is present and not string, stringify it
+  if (config.body && typeof config.body !== 'string') {
+    config.body = JSON.stringify(config.body);
   }
 
-  const response = await fetch(url, config);
-  const data = await response.json();
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
   if (!response.ok) {
-    throw new Error(data.error?.message || 'An error occurred');
+    let errorMessage = 'API request failed';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch {
+      // Ignore JSON parse errors
+    }
+    throw new Error(errorMessage);
   }
 
-  return data;
-};
+  if (response.status === 204) {
+    return null;
+  }
 
-export const authAPI = {
-  register: (data) => api('/auth/register', { method: 'POST', body: data }),
-  login: (data) => api('/auth/login', { method: 'POST', body: data }),
-  logout: () => api('/auth/logout', { method: 'POST' }),
-  getMe: () => api('/auth/me'),
-};
+  return response.json();
+}
 
 export const listingAPI = {
   getListings: (params = {}) => {
     const query = new URLSearchParams(params).toString();
     return api(`/listings?${query}`);
   },
+
   getListing: (id) => api(`/listings/${id}`),
-  createListing: (data) => api('/listings', { method: 'POST', body: data }),
-  updateListing: (id, data) => api(`/listings/${id}`, { method: 'PUT', body: data }),
-  deleteListing: (id) => api(`/listings/${id}`, { method: 'DELETE' }),
+
+  createListing: (data) =>
+    api('/listings', {
+      method: 'POST',
+      body: data,
+    }),
+
+  updateListing: (id, data) =>
+    api(`/listings/${id}`, {
+      method: 'PUT',
+      body: data,
+    }),
+
+  deleteListing: (id) =>
+    api(`/listings/${id}`, {
+      method: 'DELETE',
+    }),
+
   getMyListings: () => api('/listings/my-listings'),
+
+  reportListing: (listingId, reason) =>
+    api(`/listings/${listingId}/report`, {
+      method: 'POST',
+      body: { reason },
+    }),
 };
 
 export const userAPI = {
-  getBookmarks: () => api('/users/me/bookmarks'),
-  toggleBookmark: (listingId) => api(`/users/me/bookmarks/${listingId}`, { method: 'POST' }),
+  toggleBookmark: (listingId) =>
+    api(`/users/bookmarks/${listingId}`, { method: 'POST' }),
+
+  getBookmarks: () =>
+    api('/users/bookmarks'),
+
+  // Add more user related methods if needed
+};
+
+export const cartAPI = {
+  addToCart: (item) =>
+    api('/cart', { method: 'POST', body: item }),
+
+  getCart: () =>
+    api('/cart'),
+
+  // Add more cart related methods if needed
+};
+
+export const orderAPI = {
+  createOrder: (orderData) =>
+    api('/orders', {
+      method: 'POST',
+      body: orderData,
+    }),
+
+  getMyOrders: () => api('/orders/my-orders'),
+
+  getOrder: (id) => api(`/orders/${id}`),
+};
+
+export const authAPI = {
+  login: (credentials) => api('/auth/login', { method: 'POST', body: credentials }),
+  register: (userData) => api('/auth/register', { method: 'POST', body: userData }),
+  checkAuth: () => api('/auth/me'),
 };
 
 export const metaAPI = {
@@ -54,22 +115,11 @@ export const metaAPI = {
   getLocations: () => api('/meta/locations'),
 };
 
-// NEW - Cart API
-export const cartAPI = {
-  getCart: () => api('/cart'),
-  addToCart: (data) => api('/cart/add', { method: 'POST', body: data }),
-  updateCartItem: (itemId, data) => api(`/cart/items/${itemId}`, { method: 'PUT', body: data }),
-  deleteCartItem: (itemId) => api(`/cart/items/${itemId}`, { method: 'DELETE' }),
-  checkout: () => api('/cart/checkout', { method: 'POST' }),
-};
-
-// Chat API
 export const chatAPI = {
   chat: (data) => api('/chat', { method: 'POST', body: data }),
-  getChatHistory: (sessionId) => api(`/chat/history/${sessionId}`),
+  getHistory: (sessionId) => api(`/chat/history/${sessionId}`),
 };
 
-// Marketplace API
 export const marketplaceAPI = {
   getByCategory: (category, params) => {
     const query = new URLSearchParams(params).toString();
@@ -77,7 +127,3 @@ export const marketplaceAPI = {
   },
   incrementView: (id) => api(`/marketplace/${id}/view`, { method: 'POST' }),
 };
-
-export default api;
-
-

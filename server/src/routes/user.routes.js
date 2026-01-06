@@ -4,7 +4,7 @@ import { authenticate } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-router.get('/me/bookmarks', authenticate, userController.getBookmarks);
-router.post('/me/bookmarks/:listingId', authenticate, userController.toggleBookmark);
+router.get('/bookmarks', authenticate, userController.getBookmarks);
+router.post('/bookmarks/:listingId', authenticate, userController.toggleBookmark);
 
 export default router;
