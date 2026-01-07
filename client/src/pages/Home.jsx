@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import RecentlyViewed from '../components/RecentlyViewed';
 
 function Home() {
   const categories = [
@@ -29,6 +30,9 @@ function Home() {
           </Link>
         </div>
       </div>
+
+      {/* Recently Viewed Section */}
+      <RecentlyViewed />
 
       {/* Categories Section */}
       <div className="container mx-auto px-4 py-16">

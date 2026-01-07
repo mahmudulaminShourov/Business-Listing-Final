@@ -1,11 +1,25 @@
 import { Link } from 'react-router-dom';
+import { Star } from 'lucide-react';
+import { useState } from 'react';
 
 function ListingCard({ listing }) {
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
   return (
     <Link
       to={`/listings/${listing._id}`}
-      className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+      className="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden relative group"
     >
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          setIsWishlisted(!isWishlisted);
+        }}
+        className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white text-gray-400 hover:text-yellow-500 transition-colors z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
+        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+      >
+        <Star className={`w-5 h-5 ${isWishlisted ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+      </button>
       {listing.imageUrl ? (
         <img
           src={listing.imageUrl}

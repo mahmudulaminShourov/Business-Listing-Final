@@ -6,6 +6,7 @@ import useAuthStore from '../state/authStore';
 import DeliveryModal from '../components/DeliveryModal';
 import OrderingFlow from '../components/OrderingFlow';
 import ReportModal from '../components/ReportModal';
+import RecentlyViewed from '../components/RecentlyViewed';
 
 function ListingDetail() {
   const { id } = useParams();
@@ -54,6 +55,38 @@ function ListingDetail() {
 
     fetchListing();
   }, [id]);
+
+  // Save to Recently Viewed
+  useEffect(() => {
+    if (listing) {
+      try {
+        const existing = localStorage.getItem('recentlyViewed');
+        let items = existing ? JSON.parse(existing) : [];
+
+        // Remove current item if it exists (to move it to top)
+        items = items.filter(i => i._id !== listing._id);
+
+        // Add current item to front
+        items.unshift({
+          _id: listing._id,
+          name: listing.name,
+          imageUrl: listing.imageUrl,
+          category: listing.category,
+          location: listing.location,
+          rating: listing.rating,
+          shortDescription: listing.shortDescription || (listing.description ? listing.description.substring(0, 100) + '...' : ''),
+          price: listing.price
+        });
+
+        // Keep max 8 items
+        if (items.length > 8) items = items.slice(0, 8);
+
+        localStorage.setItem('recentlyViewed', JSON.stringify(items));
+      } catch (e) {
+        console.error('Error saving to recently viewed:', e);
+      }
+    }
+  }, [listing]);
 
   // Bookmark handler
   const handleBookmark = async () => {
@@ -160,8 +193,8 @@ function ListingDetail() {
                     onClick={handleBookmark}
                     disabled={bookmarking}
                     className={`px-4 py-2 rounded-lg transition-colors border ${isBookmarked
-                        ? 'bg-yellow-100 border-yellow-300 text-yellow-700 hover:bg-yellow-200'
-                        : 'bg-gray-50 border-gray-300 text-gray-600 hover:bg-gray-100'
+                      ? 'bg-yellow-100 border-yellow-300 text-yellow-700 hover:bg-yellow-200'
+                      : 'bg-gray-50 border-gray-300 text-gray-600 hover:bg-gray-100'
                       }`}
                   >
                     {bookmarking ? '...' : isBookmarked ? '★ Bookmarked' : '☆ Bookmark'}
@@ -294,6 +327,11 @@ function ListingDetail() {
       {showDeliveryModal && (
         <DeliveryModal business={listing} onClose={() => setShowDeliveryModal(false)} />
       )}
+
+      {/* Recently Viewed Section */}
+      <div className="mt-12 pt-8 border-t border-gray-200">
+        <RecentlyViewed excludeId={id} />
+      </div>
     </div>
   );
 }
