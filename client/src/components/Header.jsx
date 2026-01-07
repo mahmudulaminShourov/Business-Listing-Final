@@ -61,6 +61,18 @@ function Header() {
                   Profile
                 </Link>
                 <Link
+                  to="/bookmarks"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+                >
+                  Bookmarks
+                </Link>
+                <Link
+                  to="/wishlist"
+                  className="text-gray-700 hover:text-blue-600 font-medium"
+                >
+                  Wishlist
+                </Link>
+                <Link
                   to="/cart"
                   className="text-gray-700 hover:text-blue-600 font-medium"
                 >

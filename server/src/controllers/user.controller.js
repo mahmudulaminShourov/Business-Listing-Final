@@ -22,3 +22,24 @@ export const toggleBookmark = asyncHandler(async (req, res) => {
     throw new ApiError(404, error.message);
   }
 });
+
+export const getWishlist = asyncHandler(async (req, res) => {
+  const listings = await userService.getUserWishlist(req.user.id);
+
+  res.json({
+    success: true,
+    data: { listings },
+  });
+});
+
+export const toggleWishlist = asyncHandler(async (req, res) => {
+  try {
+    const result = await userService.toggleWishlist(req.user.id, req.params.listingId);
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    throw new ApiError(404, error.message);
+  }
+});

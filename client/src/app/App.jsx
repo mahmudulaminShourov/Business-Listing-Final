@@ -11,6 +11,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Bookmarks from '../pages/Bookmarks';
+import Wishlist from '../pages/Wishlist';
 import NewListing from '../pages/NewListing';
 import EditListing from '../pages/EditListing';
 import Cart from '../pages/Cart';
@@ -77,6 +78,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Bookmarks />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <Wishlist />
                 </ProtectedRoute>
               }
             />

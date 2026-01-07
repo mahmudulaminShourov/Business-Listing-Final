@@ -79,6 +79,12 @@ export const userAPI = {
   getBookmarks: () =>
     api('/users/bookmarks'),
 
+  toggleWishlist: (listingId) =>
+    api(`/users/wishlist/${listingId}`, { method: 'POST' }),
+
+  getWishlist: () =>
+    api(`/users/wishlist`),
+
   // Add more user related methods if needed
 };
 
